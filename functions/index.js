@@ -55,27 +55,16 @@ function processV1Request (request, response) {
       // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
       questionS = dataBase[0];
       var messageS = questionS.question + questionS.options.toString();
-      var message2 = {'speech': 'When',
-      'displayText': 'When',
-      'messages': 
-      [
-       {'title': 'when',
-        'replies': ['12:00',
-                    '13:00',
-                    '17:00',
-                    '18:00'],
-        'type': 2}],
-      'source': 'dimwei.com'};
-      var messageJSON2 = JSON.stringify(message2);
+     
 
-
+      var response =  app.buildRichResponse().addSuggestions(questionS.options);
       if (requestSource === googleAssistantRequest) {
 //        sendGoogleResponse([questionS.question,questionS.options]); // Send simple response to user
-        sendGoogleResponse(messageS); // Send simple response to user
+        sendGoogleResponse(response); // Send simple response to user
        
       } else {
         //sendResponse([questionS.question,questionS.options]); // Send simple response to user
-        sendResponse(messageS); // Send simple response to user
+        sendResponse(response); // Send simple response to user
 
       }
     },
@@ -87,6 +76,9 @@ function processV1Request (request, response) {
       }else{
        respuesta = "Incorrect!";
       };
+
+      
+
 
       if (requestSource === googleAssistantRequest) {
         sendGoogleResponse(respuesta); // Send simple response to user
