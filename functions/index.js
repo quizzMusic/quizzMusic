@@ -55,30 +55,55 @@ function processV1Request (request, response) {
       // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
       questionS = dataBase[0];
       var messageS = questionS.question + questionS.options.toString();
-     
+      var response = {speech:questionS.question,data:questionS.options};
 
-      var response =  app.buildRichResponse().addSuggestions(questionS.options);
-      if (requestSource === googleAssistantRequest) {
+      if (app.hasSurfaceCapability(app.SurfaceCapabilities.SCREEN_OUTPUT)) {
+        app.ask(app.buildRichResponse()
+          // Create a basic card and add it to the rich response
+                  .addSimpleResponse(questionS.question)
+                  .addBasicCard(app.buildBasicCard(`dunno what to write`)
+                      .setTitle('Posibles opciones')
+                      .addButton(question.options[0])
+                      .addButton(question.options[1])
+                      .addButton(question.options[2])
+                      )
+              );
+      } else {
+        app.ask(app.buildRichResponse().addSimpleResponse(messageS));
+      }
+
+
+      //var response =  app.buildRichResponse().addSuggestions(questionS.options);
+      //app.ask(response);
+      //response.json(response);
+      /*if (requestSource === googleAssistantRequest) {
 //        sendGoogleResponse([questionS.question,questionS.options]); // Send simple response to user
-        sendGoogleResponse(response); // Send simple response to user
+        sendGoogleResponse("sendGoogleResponse"); // Send simple response to user
        
       } else {
         //sendResponse([questionS.question,questionS.options]); // Send simple response to user
         sendResponse(response); // Send simple response to user
 
+      }*/
+    },
+    'incorrect.answer': () => {
+      // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
+      if (requestSource === googleAssistantRequest) {
+        sendGoogleResponse('Event incorrect answer triggered'); // Send simple response to user
+        
+      } else {
+        sendResponse('Event incorrect answer triggered'); // Send simple response to user
       }
     },
     'answer.value': () => {
       // Use the Actions on Google lib to respond to Google requests; for other requests use JSON
       var respuesta;
+      
       if(parameters.answerUmbrella == questionS.correct){
        respuesta = "Correct!";
       }else{
        respuesta = "Incorrect!";
       };
-
-      
-
 
       if (requestSource === googleAssistantRequest) {
         sendGoogleResponse(respuesta); // Send simple response to user
