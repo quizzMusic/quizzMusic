@@ -103,6 +103,14 @@ function processV1Request (request, response) {
        respuesta = "Correct!";
       }else{
        respuesta = "Incorrect!";
+	   var promise = lastFMCall(questionS.translation);
+       
+       promise.then(function (result) {
+            console.log(result);
+       }).catch(function (error) {
+            console.log(error.message);
+       });
+       };
       };
 
       if (requestSource === googleAssistantRequest) {
@@ -185,6 +193,38 @@ function processV1Request (request, response) {
       response.json(responseJson); // Send response to Dialogflow
     }
   }
+}
+function lastFMCall ( word ) {
+  return new Promise(function(resolve, reject) {
+    
+    const https = require('https');
+        
+    https.get('https://ws.audioscrobbler.com/2.0/?method=tag.gettoptracks&tag='+word+'&api_key=06a475a81540b885a99f834fc863220c&format=json&limit=1', (resp) => {
+    let data = '';
+    
+    // A chunk of data has been recieved.
+    resp.on('data', (chunk) => {
+        data += chunk;
+    });
+ 
+    // The whole response has been received. Print out the result.
+    resp.on('end', () => {
+        
+        var aux = data[29];
+        var number = 29;
+        while(aux != '"'){
+            number++;
+            aux = data[number]
+        }
+        var result = data.slice(29,number);
+        resolve(result);
+    });
+ 
+    }).on("error", (err) => {
+    console.log("Error: " + err.message);
+    reject(Error(err));
+    });
+  });
 }
 // Construct rich response for Google Assistant (v1 requests only)
 const app = new DialogflowApp();
